@@ -9,11 +9,13 @@ public class NetworkController : MonoBehaviour {
     private const string GameNameString = "nybblestudiosnextgame";
     public string GameRoomInstanceName = "buddha";
 	public Text networkText;
+
 	
 	public Object ShipPrefab;
 	public Object TankPrefab;
 	
-	private bool p2loaded = false;
+	private bool loadplayer = false;
+    private bool clientConnect = false;
 	
 	// Use this for initialization
 	void Start () {
@@ -21,6 +23,23 @@ public class NetworkController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        if(clientConnect)
+        {
+            try
+            {
+                List<HostData> hostdata = new List<HostData>(MasterServer.PollHostList());
+                if(hostdata.Count > 0)
+                {
+                    Network.Connect(hostdata[0]);//MASTER
+                    clientConnect = false;
+                    loadplayer = true;
+                    //Network.Instantiate(TankPrefab, transform.position, transform.rotation, 0);
+                }
+            }
+            catch (UnityException e) { }
+        }
+
 		if (Network.peerType == NetworkPeerType.Disconnected)
 		{
 			/* NetworkPeerType is an enumeration with the following values: Disconnected, 
@@ -33,11 +52,12 @@ public class NetworkController : MonoBehaviour {
 		else if (Network.peerType == NetworkPeerType.Client)
 		{
 			networkText.text = "Status: Connected as Client";
-			if(!p2loaded)
+            if (loadplayer)
 			{
 				Debug.Log("Spawning Player...");
 				Network.Instantiate(TankPrefab, transform.position, transform.rotation, 0);
-				p2loaded = true;
+                loadplayer = false;
+                this.gameObject.SetActive(false);
 			}
 		}
 		else if (Network.peerType == NetworkPeerType.Server)
@@ -56,7 +76,7 @@ public class NetworkController : MonoBehaviour {
 		yet so it wouldn’t connect to anything so nothing would happen. */
         //Network.Connect(connectionIP, connectionPort);//NON-MASTER
         MasterServer.RequestHostList(GameNameString);//MASTER
-        Network.Connect(new List<HostData>(MasterServer.PollHostList())[0]);//MASTER
+        clientConnect = true;
 	}
 	
 	public void onButtonClickDisconectFromServer()
@@ -64,7 +84,8 @@ public class NetworkController : MonoBehaviour {
 		if (Network.peerType == NetworkPeerType.Client)
 		{
 			networkText.text = "disconected";
-			Network.Disconnect(200);
+			//Network.Disconnect(200);
+            MasterServer.UnregisterHost();
 		}
 	}
 	
@@ -77,6 +98,7 @@ public class NetworkController : MonoBehaviour {
 		Network.InitializeServer(32, connectionPort, false);
         MasterServer.RegisterHost(GameNameString, GameRoomInstanceName, "Host");//MASTER
 		Network.Instantiate(ShipPrefab, transform.position, transform.rotation, 0);
+        this.gameObject.SetActive(false);
 	}
 	
 	[RPC]
