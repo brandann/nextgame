@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class NetworkController : MonoBehaviour {
 
-	public string connectionIP = "127.0.0.1";
 	public int connectionPort = 25001;
+    private const string GameNameString = "nybblestudiosnextgame";
+    public string GameRoomInstanceName = "buddha";
 	public Text networkText;
 	
 	public Object ShipPrefab;
@@ -52,7 +54,9 @@ public class NetworkController : MonoBehaviour {
 		We haven’t started a server yet, so if we clicked the button now, it would try to connect at the 
 		IP address (which would just be whatever computer you are on) at port 25001. Nothing is active 
 		yet so it wouldn’t connect to anything so nothing would happen. */
-		Network.Connect(connectionIP, connectionPort);
+        //Network.Connect(connectionIP, connectionPort);//NON-MASTER
+        MasterServer.RequestHostList(GameNameString);//MASTER
+        Network.Connect(new List<HostData>(MasterServer.PollHostList())[0]);//MASTER
 	}
 	
 	public void onButtonClickDisconectFromServer()
@@ -71,6 +75,7 @@ public class NetworkController : MonoBehaviour {
 		connections, or players, you allow to your server. The final parameter is for NAT (Network Address Translation). 
 		We’ll ignore it for now, just set it to false. */
 		Network.InitializeServer(32, connectionPort, false);
+        MasterServer.RegisterHost(GameNameString, GameRoomInstanceName, "Host");//MASTER
 		Network.Instantiate(ShipPrefab, transform.position, transform.rotation, 0);
 	}
 	
