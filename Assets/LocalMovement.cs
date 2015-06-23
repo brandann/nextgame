@@ -40,6 +40,8 @@ public class LocalMovement : MonoBehaviour {
 			altitude -= .1f;
 			updirection = (origin - position).normalized * altitude;
 		}
+
+        altitude = Mathf.Clamp(altitude, (sphere.transform.localScale.x / 2), (sphere.transform.localScale.x / 2) + 20);
 		
 		// check for rotational changes
 		if(Input.GetAxis("Horizontal") != 0) // rotational
@@ -64,6 +66,7 @@ public class LocalMovement : MonoBehaviour {
 	
 	void LateUpdate()
 	{
+        
         transform.up = updirection;
         transform.position = updirection;
         transform.Rotate(rotationAxis, rotationAngle);
