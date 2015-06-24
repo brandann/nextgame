@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 150
-  rotateSpeed: 100
+  rotateSpeed: 55
   sphere: {fileID: 1421928693}
 --- !u!4 &350477918
 Transform:
@@ -1706,7 +1706,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
-  - {fileID: 2100000, guid: 6471fb726a5f1bf46b30a11132722d6d, type: 2}
+  - {fileID: 2100000, guid: 6dfa8f80a53a94e4dba0d4fc8172fd6e, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
